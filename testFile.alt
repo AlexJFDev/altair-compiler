@@ -1,5 +1,5 @@
 LDA,80,00
-#MOV
+MOV,b,a
 LDA,81,00
 #ADD
 STA,82,00

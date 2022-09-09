@@ -6,21 +6,22 @@ except:
     print("A file location was not passed as an argument.")
     print("Stopping compiler.")
     quit()
-class Instruction:
+
+class Instruction():
     def __init__(self, _byte_code):
         self.byte_code = _byte_code
     def getInstructionType(self):
-        return "instruction"
-    def getByteCode(self):
-        return self.byte_code
+        return "simpleinstruction"
 
 class SimpleInstruction(Instruction):
     def __init__(self, _byte_code):
         self.byte_code = _byte_code
     def getInstructionType(self):
         return "simpleinstruction"
+    def getByteCode(self):
+        return self.byte_code
 
-class SimpleArgumentInstruction(Instruction):
+class SimpleArgumentInstruction(SimpleInstruction):
     def __init__(self, _byte_code, _number_of_arguments):
         self.byte_code = _byte_code
         self.number_of_arguments = _number_of_arguments
@@ -29,12 +30,22 @@ class SimpleArgumentInstruction(Instruction):
     def getNumberOfArguments(self):
         return self.number_of_arguments
 
-class inByteTwoArgumentInstruction(Instruction):
-    def __init__(self, _byte_code, _number_of_arguments):
-        self.byte_code = _byte_code
-        self.number_of_arguments = _number_of_arguments
+class inByteArgument(Instruction):
+    def __init__(self, _front_bits, _end_bits = 0):
+        self.front_bits = _front_bits
+        self.end_bits = _end_bits
     def getInstructionType(self):
-        return "inbytetwoargumentinstruction"
+        return "inbyteargument"
+
+class customByte(Instruction):
+    def __init__(self):
+        pass
+
+class moveInstruction(Instruction):
+    def __init__(self):
+        pass
+    def getInstructionType(self):
+        return "moveinstruction"
         
 instruction_dictionary = {
     ###### Command Instructions
@@ -71,7 +82,7 @@ instruction_dictionary = {
     "RAR" : SimpleInstruction(b'\x1f'),
     ###### Data Transfer Instructions
     ### Data Transfer Instructions
-    #MOV
+    "MOV" : moveInstruction(),
     #STAX
     #LDAX
     ### Register/Memory to Accumulator Transfers
@@ -131,7 +142,17 @@ instruction_dictionary = {
     #RP
     #RPE
     #RPO
+}
 
+single_register_dictionary = {
+    "b" : 0b000,
+    "c" : 0b001,
+    "d" : 0b010,
+    "e" : 0b011,
+    "h" : 0b100,
+    "l" : 0b101,
+    "m" : 0b110,
+    "a" : 0b111
 }
 
 file = open(file_location, "r")
@@ -146,16 +167,20 @@ for line in file:
     instruction_string = line_split[0]
     instruction = instruction_dictionary.get(instruction_string)
     instruction_type = instruction.getInstructionType()
-    byte_code = instruction.getByteCode()
     if instruction_type == "simpleinstruction":
-        compiled_bytes = compiled_bytes + byte_code
+        byte_code = instruction.getByteCode()
+        compiled_bytes += byte_code
     elif instruction_type == "simpleargumentinstruction":
-        compiled_bytes = compiled_bytes + byte_code
+        byte_code = instruction.getByteCode()
+        compiled_bytes += byte_code
         for argument in range(1, instruction.getNumberOfArguments() + 1):
             argument_byte = line_split[argument]
-            compiled_bytes = compiled_bytes + bytes.fromhex(argument_byte)
-    elif instruction_type == "":
-        pass
+            compiled_bytes += bytes.fromhex(argument_byte)
+    elif instruction_type == "moveinstruction":
+        destination_register = single_register_dictionary.get(line_split[1])
+        source_register = single_register_dictionary.get(line_split[2])
+        byte_code = (0b01000000 + destination_register * 8 + source_register).to_bytes(1, "little")
+        compiled_bytes += byte_code
 
 print(compiled_bytes)
 file_location = file_location[:file_location.rfind(".")]
