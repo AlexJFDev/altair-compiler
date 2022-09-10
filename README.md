@@ -1,4 +1,4 @@
-This program compiles hex code for the Altair.
+This program compiles binary files for the altair.
 
 Bytes are written in the same order as on the file. Some instructions will take up multiple bytes with arguments so keep that in mind.
 
