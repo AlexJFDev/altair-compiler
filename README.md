@@ -1,4 +1,11 @@
-This program compiles binary files for the altair.
+####This program compiles binary files for the altair 8800.
+
+### How to use
+
+Run the file main.py with (probably) any version of Python3 like this:
+> python3 main.py {program.file} {output.location}(optional)
+
+### Writing programs
 
 Bytes are written in the same order as on the file. Some instructions will take up multiple bytes with arguments so keep that in mind.
 
