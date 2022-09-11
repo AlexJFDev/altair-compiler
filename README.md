@@ -1,4 +1,4 @@
-####This program compiles binary files for the altair 8800.
+#### This program compiles binary files for the altair 8800.
 
 ### How to use
 
