@@ -1,56 +1,23 @@
-import sys;
+""" This module contains the actual compiler """
+
+from asyncio.windows_events import NULL
+import sys
+
+from simple_instruction import SimpleInstruction
+from complex_instruction import ComplexInstruction
+from mov_instruction import MOVInstruction
+from custom_byte import CustomByte
 
 try:
-    file_location = sys.argv[1]
-except:
+    FILE_LOCATION = sys.argv[1]
+except IndexError:
     print("a file location was not passed as an argument")
     print("STOPPING COMPILER")
-    quit()
+    sys.exit()
 
-class Instruction():
-    def __init__(self, _byte_code):
-        self.byte_code = _byte_code
-    def getInstructionType(self):
-        return "instruction"
-
-class SimpleInstruction(Instruction):
-    def __init__(self, _byte_code, _number_of_arguments = 0):
-        self.byte_code = _byte_code
-        self.number_of_arguments = _number_of_arguments
-    def getByteCode(self):
-        return self.byte_code
-    def getNumberOfArguments(self):
-        return self.number_of_arguments
-    def getInstructionType(self):
-        return "simpleInstruction"
-
-class ComplexInstruction(Instruction):
-    def __init__(self, _front_bits, _end_bits = "na", _number_of_arguments = 0):
-        self.front_bits = _front_bits
-        self.end_bits = _end_bits
-        self.number_of_arguments = _number_of_arguments
-    def getFrontBits(self):
-        return self.front_bits
-    def getEndBits(self):
-        return self.end_bits
-    def getNumberOfArguments(self):
-        return self.number_of_arguments
-    def getInstructionType(self):
-        return "complexInstruction"
-
-class CustomByte(Instruction):
-    def __init__(self):
-        pass
-    def getInstructionType(self):
-        return "customByte"
-
-class MoveInstruction(Instruction):
-    def __init__(self):
-        pass
-    def getInstructionType(self):
-        return "moveInstruction"
-        
-instruction_dictionary = {
+class Compiler():
+    """ The class for the actual compiler """
+    INSTRUCTION_DICTIONARY = {
     ###### Command Instructions
     ### Input/Output Instructions
     "IN" : SimpleInstruction(b"\xdb", _number_of_arguments = 1),
@@ -85,7 +52,7 @@ instruction_dictionary = {
     "RAR" : SimpleInstruction(b"\x1f"),
     ###### Data Transfer Instructions
     ### Data Transfer Instructions
-    "MOV" : MoveInstruction(),
+    "MOV" : MOVInstruction(),
     "STAX" : ComplexInstruction("000", _end_bits = "0010"),
     "LDAX" : ComplexInstruction("000", _end_bits = "1010"),
     ### Register/Memory to Accumulator Transfers
@@ -148,75 +115,83 @@ instruction_dictionary = {
 
     ###### Custom Byte
     ### This is not an Altair instruction. It is for bytes to be placed at the end of a program that contain needed data.
-    "CSTM" : CustomByte()
-}
+    "cstm" : CustomByte()
+    }
 
-single_register_dictionary = {
-    "b" : 0b000,
-    "c" : 0b001,
-    "d" : 0b010,
-    "e" : 0b011,
-    "h" : 0b100,
-    "l" : 0b101,
-    "m" : 0b110,
-    "a" : 0b111
-}
+    SINGLE_REGISTER_DICTIONARY = {
+        "b" : 0b000,
+        "c" : 0b001,
+        "d" : 0b010,
+        "e" : 0b011,
+        "h" : 0b100,
+        "l" : 0b101,
+        "m" : 0b110,
+        "a" : 0b111
+    }
 
-file = open(file_location, "r")
-compiled_bytes = b""
-
-for line in file:
-    print(line[:-1])
-    if line[0] == "#":
-        continue
-    line = line.replace("\n","")
-    line_split = line.split(",")
-    instruction_string = line_split[0]
-    instruction = instruction_dictionary.get(instruction_string)
-    try:
-        instruction_type = instruction.getInstructionType()
-    except AttributeError:
-        print(f"the instruction {instruction_string} was not recognized")
-        print("STOPPING COMPILER")
-        quit()
-    if instruction_type == "simpleInstruction":
-        byte_code = instruction.getByteCode()
-        compiled_bytes += byte_code
-        for argument in range(1, instruction.getNumberOfArguments() + 1):
-            argument_byte = line_split[argument]
-            compiled_bytes += bytes.fromhex(argument_byte)
-
-    elif instruction_type == "complexInstruction":
-        front_bits = instruction.getFrontBits()
-        end_bits = instruction.getEndBits()
-        argument_bits = line_split[1]
-        front_bits_length = len(front_bits)
-        argument_bits_length = len(argument_bits)
-        front_bits = int(front_bits, 2) * pow(2, 8 - front_bits_length)
-        argument_bits = int(argument_bits, 2) * pow(2, 8 - front_bits_length - argument_bits_length)
-        if end_bits == "na":
-            byte_code = (front_bits + argument_bits).to_bytes(1, "little")
+    def __init__(self, _input_file_location, _output_file_location = NULL):
+        self.file = open(_input_file_location, encoding="utf-8")
+        if _output_file_location == NULL:
+            self.output_file_location = f"{_input_file_location}.bin"
         else:
-            end_bits = int(end_bits, 2)
-            byte_code = (front_bits + argument_bits + end_bits).to_bytes(1, "little")
-        compiled_bytes += byte_code
-        for argument in range(1, instruction.getNumberOfArguments() + 1):
-            argument_byte = line_split[argument]
-            compiled_bytes += bytes.fromhex(argument_byte)
+            self.output_file_location = _output_file_location
 
-    elif instruction_type == "customByte":
-        for data_byte in line_split[1:]:
-            compiled_bytes += bytes.fromhex(data_byte)
+        self.compiled_bytes = b''
 
-    elif instruction_type == "moveInstruction":
-        destination_register = single_register_dictionary.get(line_split[1])
-        source_register = single_register_dictionary.get(line_split[2])
-        byte_code = (0b01000000 + destination_register * 8 + source_register).to_bytes(1, "little")
-        compiled_bytes += byte_code
+    def compile(self):
+        """ This method compiles the code found in the file variable into a bytes object """
+        for line in self.file:
+            print(line[:-1])
+            if line[0] == "#":
+                continue
+            line = line.replace("\n","")
+            line_split = line.split(",")
+            instruction = self.INSTRUCTION_DICTIONARY.get(line_split[0])
+            try:
+                instruction_type = instruction.get_instruction_type()
+            except AttributeError:
+                print(f"the instruction {line_split[0]} was not recognized")
+                print("STOPPING COMPILER")
+                sys.exit()
+            if instruction_type == "simpleInstruction":
+                byte_code = instruction.get_byte_code()
+                self.compiled_bytes += byte_code
+                for argument in range(1, instruction.get_number_of_arguments() + 1):
+                    argument_byte = line_split[argument]
+                    self.compiled_bytes += bytes.fromhex(argument_byte)
 
-print(compiled_bytes)
-file_location = file_location[:file_location.rfind(".")]
-with open(f"{file_location}.bin", "wb") as output_file:
-    output_file.write(compiled_bytes)
-print(f"writing compiled program to {file_location}.bin")
-print("COMPLIER FINISHED SUCCESSFULLY")
+            elif instruction_type == "complexInstruction":
+                front_bits = instruction.get_front_bits()
+                end_bits = instruction.get_end_bits()
+                argument_bits = line_split[1]
+                front_bits_length = len(front_bits)
+                argument_bits_length = len(argument_bits)
+                front_bits = int(front_bits, 2) * pow(2, 8 - front_bits_length)
+                argument_bits = int(argument_bits, 2) * pow(2, 8 - front_bits_length - argument_bits_length)
+                if end_bits == "na":
+                    byte_code = (front_bits + argument_bits).to_bytes(1, "little")
+                else:
+                    end_bits = int(end_bits, 2)
+                    byte_code = (front_bits + argument_bits + end_bits).to_bytes(1, "little")
+                self.compiled_bytes += byte_code
+                for argument in range(1, instruction.get_number_of_arguments() + 1):
+                    argument_byte = line_split[argument]
+                    self.compiled_bytes += bytes.fromhex(argument_byte)
+
+            elif instruction_type == "customByte":
+                for data_byte in line_split[1:]:
+                    self.compiled_bytes += bytes.fromhex(data_byte)
+
+            elif instruction_type == "MOVInstruction":
+                destination_register = self.SINGLE_REGISTER_DICTIONARY.get(line_split[1])
+                source_register = self.SINGLE_REGISTER_DICTIONARY.get(line_split[2])
+                byte_code = (0b01000000 + destination_register * 8 + source_register).to_bytes(1, "little")
+                self.compiled_bytes += byte_code
+            print(self.compiled_bytes)
+
+    def write(self):
+        """ This method writes to file location defined in the output_file_location variable """
+        with open(self.output_file_location, "wb") as output_file:
+            output_file.write(self.compiled_bytes)
+        print(f"wrote compiled program to {self.output_file_location}")
+        print("COMPLIER FINISHED SUCCESSFULLY")

@@ -9,4 +9,4 @@ To write code use the Mnemonic found in the manual followed by any arguments tha
 * Instructions that have arguments in the next one or two bytes take arguments in hex form.
 * The MOV instruction takes arguments in the form of B, C, D, E, H, L, M, and A. A references the accumulator and M references a byte in memory at the location H&L point to.
 
-CSTM (custom) is special. It is not an Altair instruction instead it is used to write custom data to bytes.
+cstm (custom) is special. It is not an Altair instruction instead it is used to write custom data to bytes. It is represented in lowercase to differentiate it from actual altair instructions.

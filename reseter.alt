@@ -1,6 +1,0 @@
-LDA,0b,00
-LHLD,0c,00
-MOV,m,a
-INX,10
-JMP,06,00
-CSTM,ff,0e,00

@@ -1,0 +1,9 @@
+# This program iterates over every byte in memory and replaces its value with that of the 0b byte.
+# It starts at the 0e byte.
+# Eventually it will even write over itself and break.
+LDA,0b,00
+LHLD,0c,00
+MOV,m,a
+INX,10
+JMP,06,00
+cstm,ff,0e,00
