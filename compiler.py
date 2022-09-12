@@ -115,7 +115,7 @@ class Compiler():
 
     ###### Custom Byte
     ### This is not an Altair instruction. It is for bytes to be placed at the end of a program that contain needed data.
-    "cstm" : CustomByte()
+    "dat" : CustomByte()
     }
 
     SINGLE_REGISTER_DICTIONARY = {

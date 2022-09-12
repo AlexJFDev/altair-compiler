@@ -5,4 +5,4 @@ LDA,0d,00
 ADD,000
 STA,0e,00
 HLT
-cstm,03,04
+dat,03,04

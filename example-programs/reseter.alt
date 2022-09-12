@@ -6,4 +6,4 @@ LHLD,0c,00
 MOV,m,a
 INX,10
 JMP,06,00
-cstm,ff,0e,00
+dat,ff,0e,00
