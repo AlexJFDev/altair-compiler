@@ -131,7 +131,7 @@ class Compiler():
     def __init__(self, _input_file_location, _output_file_location = None):
         self.file = open(_input_file_location, encoding="utf-8")
         if _output_file_location == None:
-            self.output_file_location = f"{_input_file_location}.bin"
+            self.output_file_location = f"{_input_file_location[0:_input_file_location.rfind('.')]}.bin"
         else:
             self.output_file_location = _output_file_location
 

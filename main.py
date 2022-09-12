@@ -13,7 +13,7 @@ if __name__ == "__main__":
         print("STOPPING COMPILER")
         sys.exit()
     elif len(sys.argv) == 2:
-        compiler = Compiler(sys.argv[1][0:sys.argv[1].rfind(".")])
+        compiler = Compiler(sys.argv[1])
         compiler.compile()
         compiler.write()
     elif len(sys.argv) == 3:
