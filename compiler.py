@@ -1,6 +1,5 @@
 """ This module contains the actual compiler """
 
-from asyncio.windows_events import NULL
 import sys
 
 from simple_instruction import SimpleInstruction
@@ -129,9 +128,9 @@ class Compiler():
         "a" : 0b111
     }
 
-    def __init__(self, _input_file_location, _output_file_location = NULL):
+    def __init__(self, _input_file_location, _output_file_location = None):
         self.file = open(_input_file_location, encoding="utf-8")
-        if _output_file_location == NULL:
+        if _output_file_location == None:
             self.output_file_location = f"{_input_file_location}.bin"
         else:
             self.output_file_location = _output_file_location
