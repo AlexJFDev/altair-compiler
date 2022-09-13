@@ -10,5 +10,11 @@ class CustomByte(Instruction):
     """
     def __init__(self):
         pass
-    def get_instruction_type(self):
+    def get_instruction_type(self) -> str:
         return "customByte"
+    def generate_bytes(self, arguments: "list[str]") -> bytes:
+        return_bytes: bytes = b''
+        for data_byte in arguments:
+            print(data_byte)
+            return_bytes += bytes.fromhex(data_byte)
+        return return_bytes

@@ -7,18 +7,33 @@ class ComplexInstruction(Instruction):
     This is a class for complex instructions that don't
     always have the same bytecode and might have arguments.
     """
-    def __init__(self, _front_bits, _end_bits = "na", _number_of_arguments = 0):
-        self.front_bits = _front_bits
-        self.end_bits = _end_bits
-        self.number_of_arguments = _number_of_arguments
-    def get_front_bits(self):
+    def __init__(self, _front_bits : str, _end_bits : str = None, _number_of_arguments : int = 0):
+        self.front_bits: str = _front_bits
+        self.end_bits: str = _end_bits
+        self.number_of_arguments: int = _number_of_arguments
+    def get_front_bits(self) -> str:
         """ boilerplate """
         return self.front_bits
-    def get_end_bits(self):
+    def get_end_bits(self) -> str:
         """ boilerplate """
         return self.end_bits
-    def get_number_of_arguments(self):
+    def get_number_of_arguments(self) -> int:
         """ boilerplate """
         return self.number_of_arguments
-    def get_instruction_type(self):
+    def get_instruction_type(self) -> str:
         return "complexInstruction"
+    def generate_bytes(self, arguments: "list[str]") -> bytes:
+        argument_bits: str = arguments[0]
+        front_bits_length: int = len(self.front_bits)
+        argument_bits_length: int = len(argument_bits)
+        front_int: int = int(self.front_bits, 2) * pow(2, 8 - front_bits_length)
+        argument_int: int = int(argument_bits, 2) * pow(2, 8 - front_bits_length - argument_bits_length)
+        if self.end_bits is None:
+            byte_code: bytes = (front_int + argument_int).to_bytes(1, "little")
+        else:
+            end_int: int = int(self.end_bits, 2)
+            byte_code: bytes = (front_int + argument_int + end_int).to_bytes(1, "little")
+        return_bytes: bytes = byte_code
+        for argument in arguments[1:self.number_of_arguments]:
+            return_bytes += bytes.fromhex(argument)
+        return return_bytes
