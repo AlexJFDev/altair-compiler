@@ -1,12 +1,13 @@
 """ This module contains the actual compiler """
 
 from io import TextIOWrapper
+import sys
 
-from instruction import Instruction
-from simple_instruction import SimpleInstruction
-from complex_instruction import ComplexInstruction
-from mov_instruction import MOVInstruction
-from custom_byte import CustomByte
+from altairCompiler.instructions import Instruction
+from altairCompiler.instructions import SimpleInstruction
+from altairCompiler.instructions import ComplexInstruction
+from altairCompiler.instructions import MOVInstruction
+from altairCompiler.instructions import CustomByte
 
 class Compiler():
     """ The class for the actual compiler """
@@ -111,19 +112,9 @@ class Compiler():
         "dat" : CustomByte()
     }
 
-    SINGLE_REGISTER_DICTIONARY: "dict[str, int]" = {
-        "b" : 0b000,
-        "c" : 0b001,
-        "d" : 0b010,
-        "e" : 0b011,
-        "h" : 0b100,
-        "l" : 0b101,
-        "m" : 0b110,
-        "a" : 0b111
-    }
-
-    def __init__(self, _input_file_location: str, _output_file_location: str = None):
+    def __init__(self, _input_file_location: str, _debugs_enabled: bool, _output_file_location: str = None):
         self.file: TextIOWrapper = open(_input_file_location, encoding = "utf-8")
+        self.debugs_enabled = _debugs_enabled
         if _output_file_location is None:
             self.output_file_location: str = f"{_input_file_location[0:_input_file_location.rfind('.')]}.bin"
         else:
@@ -131,21 +122,35 @@ class Compiler():
         self.compiled_bytes = b''
 
     def compile(self):
-        """ This method compiles the code found in the file variable into a bytes object """
+        """ This method compiles the program found in the file variable into a bytes object """
         line_number: int = 0
         for line in self.file:
             line_number += 1
             line = line.replace("\n","")
-            print(line)
+            if self.debugs_enabled is True:
+                print(line)
             hash_index: int = line.find("#")
             if hash_index == 0:
                 continue
             if hash_index != -1:
                 line = line[0:hash_index]
             line_split : "list[str]" = line.split(",")
-            instruction: Instruction = self.INSTRUCTION_DICTIONARY.get(line_split[0])
-            self.compiled_bytes += instruction.generate_bytes(line_split[1:])
-            print(self.compiled_bytes)
+            instruction_mnemonic: str = line_split[0]
+            arguments = line_split[1:]
+            instruction: Instruction = self.INSTRUCTION_DICTIONARY.get(instruction_mnemonic)
+            try:
+                self.compiled_bytes += instruction.generate_bytes(arguments)
+            except AttributeError:
+                print(f"unknown instruction on line {line_number}\nplease change the instruction and try again\nSTOPPING COMPILER")
+                sys.exit()
+            except ValueError:
+                print(f"invalid argument on line {line_number}\nplease change the argument and try again\nSTOPPING COMPILER")
+                sys.exit()
+            except IndexError:
+                print(f"missing one or more arguments on line {line_number}\nplease change the arguments and try again\nSTOPPING COMPILER")
+                sys.exit()
+            if self.debugs_enabled is True:
+                print(self.compiled_bytes)
 
     def write(self):
         """ This method writes to file location defined in the output_file_location variable """

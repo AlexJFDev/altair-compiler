@@ -1,6 +1,6 @@
 """ This module contains the ComplexInstruction class """
 
-from instruction import Instruction
+from .instruction import Instruction
 
 class ComplexInstruction(Instruction):
     """
@@ -11,17 +11,6 @@ class ComplexInstruction(Instruction):
         self.front_bits: str = _front_bits
         self.end_bits: str = _end_bits
         self.number_of_arguments: int = _number_of_arguments
-    def get_front_bits(self) -> str:
-        """ boilerplate """
-        return self.front_bits
-    def get_end_bits(self) -> str:
-        """ boilerplate """
-        return self.end_bits
-    def get_number_of_arguments(self) -> int:
-        """ boilerplate """
-        return self.number_of_arguments
-    def get_instruction_type(self) -> str:
-        return "complexInstruction"
     def generate_bytes(self, arguments: "list[str]") -> bytes:
         argument_bits: str = arguments[0]
         front_bits_length: int = len(self.front_bits)
@@ -34,6 +23,7 @@ class ComplexInstruction(Instruction):
             end_int: int = int(self.end_bits, 2)
             byte_code: bytes = (front_int + argument_int + end_int).to_bytes(1, "little")
         return_bytes: bytes = byte_code
-        for argument in arguments[1:self.number_of_arguments]:
+        for argument_number in range(1, self.number_of_arguments):
+            argument: str = arguments[argument_number]
             return_bytes += bytes.fromhex(argument)
         return return_bytes

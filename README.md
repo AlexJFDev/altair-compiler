@@ -1,4 +1,4 @@
-#### This program compiles binary files for the altair 8800.
+#### This program compiles binary files for the Altair 8800.
 
 ### How to use
 
@@ -11,9 +11,15 @@ Bytes are written in the same order as on the file. Some instructions will take 
 
 Comments can be made with #
 
-To write code use the Mnemonic found in the manual followed by any arguments that an instruction takes. Arguments are separated from the instruction, and each other, by commas.
+To write instructions use the Mnemonic found in the manual followed by any arguments that an instruction takes. Arguments are separated from the instruction, and each other, by commas.
 * Instructions that have arguments "in byte" take arguments in binary form.
 * Instructions that have arguments in the next one or two bytes take arguments in hex form.
 * The MOV instruction takes arguments in the form of B, C, D, E, H, L, M, and A. A references the accumulator and M references a byte in memory at the location H&L point to.
 
 dat (data) is a special instruction. It is not a real Altair 8800 instruction instead it is used to write bytes of data for your program.
+
+### Technical
+
+Info about how the compiler works will eventually be posted to my website.
+
+Adding {print-debugs} to the end of the command when running will print debug info.
