@@ -1,6 +1,4 @@
-"""
-This class contains the MOVInstruction class
-"""
+""" This class contains the MOVInstruction class """
 
 from .instruction import Instruction
 

@@ -1,6 +1,4 @@
-"""
-This module contains the SimpleInstruction class
-"""
+""" This module contains the SimpleInstruction class """
 
 from .instruction import Instruction
 

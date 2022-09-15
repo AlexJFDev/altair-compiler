@@ -1,6 +1,4 @@
-"""
-This module contains the boilerplate Instruction class
-"""
+""" This module contains the boilerplate Instruction class """
 
 class Instruction():
     """

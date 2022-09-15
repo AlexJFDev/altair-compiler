@@ -1,4 +1,4 @@
-#### This program compiles binary files for the Altair 8800.
+#### This program assembles binary files for the Altair 8800.
 
 ### How to use
 
@@ -20,6 +20,6 @@ dat (data) is a special instruction. It is not a real Altair 8800 instruction in
 
 ### Technical
 
-Info about how the compiler works is available on [my website](https://alexjf.dev/blog/csc205/altair_compiler/index.html).
+Info about how the assembler works is available on [my website](https://alexjf.dev/blog/csc205/altair_compiler/index.html).
 
 Adding {print-debugs} to the end of the command when running will print debug info.

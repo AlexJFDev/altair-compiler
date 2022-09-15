@@ -1,6 +1,4 @@
-"""
-This module contains the CustomByte class
-"""
+""" This module contains the CustomByte class """
 
 from .instruction import Instruction
 

@@ -1,16 +1,16 @@
-""" This module contains the actual compiler """
+""" This module contains the actual assembler """
 
 from io import TextIOWrapper
 import sys
 
-from altairCompiler.instructions import Instruction
-from altairCompiler.instructions import SimpleInstruction
-from altairCompiler.instructions import ComplexInstruction
-from altairCompiler.instructions import MOVInstruction
-from altairCompiler.instructions import CustomByte
+from altair_assembler.instructions import Instruction
+from altair_assembler.instructions import SimpleInstruction
+from altair_assembler.instructions import ComplexInstruction
+from altair_assembler.instructions import MOVInstruction
+from altair_assembler.instructions import CustomByte
 
-class Compiler():
-    """ The class for the actual compiler """
+class Assembler():
+    """ The class for the actual assembler """
     INSTRUCTION_DICTIONARY: "dict[str, Instruction]" = {
         ###### Command Instructions
         ### Input/Output Instructions
@@ -119,10 +119,10 @@ class Compiler():
             self.output_file_location: str = f"{_input_file_location[0:_input_file_location.rfind('.')]}.bin"
         else:
             self.output_file_location: str = _output_file_location
-        self.compiled_bytes = b''
+        self.assembled_bytes = b''
 
-    def compile(self):
-        """ This method compiles the program found in the file variable into a bytes object """
+    def assemble(self):
+        """ This method assembles the program found in the file variable into a bytes object """
         line_number: int = 0
         for line in self.file:
             line_number += 1
@@ -139,22 +139,22 @@ class Compiler():
             arguments = line_split[1:]
             instruction: Instruction = self.INSTRUCTION_DICTIONARY.get(instruction_mnemonic)
             try:
-                self.compiled_bytes += instruction.generate_bytes(arguments)
+                self.assembled_bytes += instruction.generate_bytes(arguments)
             except AttributeError:
-                print(f"unknown instruction on line {line_number}\nplease change the instruction and try again\nSTOPPING COMPILER")
+                print(f"unknown instruction on line {line_number}\nplease change the instruction and try again\nSTOPPING ASSEMBLER")
                 sys.exit()
             except ValueError:
-                print(f"invalid argument on line {line_number}\nplease change the argument and try again\nSTOPPING COMPILER")
+                print(f"invalid argument on line {line_number}\nplease change the argument and try again\nSTOPPING ASSEMBLER")
                 sys.exit()
             except IndexError:
-                print(f"missing one or more arguments on line {line_number}\nplease change the arguments and try again\nSTOPPING COMPILER")
+                print(f"missing one or more arguments on line {line_number}\nplease change the arguments and try again\nSTOPPING ASSEMBLER")
                 sys.exit()
             if self.debugs_enabled is True:
-                print(self.compiled_bytes)
+                print(self.assembled_bytes)
 
     def write(self):
         """ This method writes to file location defined in the output_file_location variable """
         with open(self.output_file_location, "wb") as output_file:
-            output_file.write(self.compiled_bytes)
-        print(f"wrote compiled program to {self.output_file_location}")
+            output_file.write(self.assembled_bytes)
+        print(f"wrote assembled program to {self.output_file_location}")
         print("COMPLIER FINISHED SUCCESSFULLY")
