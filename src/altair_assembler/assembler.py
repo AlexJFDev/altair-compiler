@@ -64,7 +64,7 @@ class Assembler():
         "SHLD" : SimpleInstruction(b"\x22", _number_of_arguments = 2),
         "LHLD" : SimpleInstruction(b"\x2a", _number_of_arguments = 2),
         ###### Immediate Instructions
-        "LXI" : ComplexInstruction("00", _end_bits = "0001", _number_of_arguments = 1),
+        "LXI" : ComplexInstruction("00", _end_bits = "0001", _number_of_arguments = 2),
         "MVI" : ComplexInstruction("00", _end_bits = "110", _number_of_arguments = 2),
         "ADI" : SimpleInstruction(b"\xc6", _number_of_arguments = 1),
         "ACI" : SimpleInstruction(b"\xce", _number_of_arguments = 1),

@@ -1,4 +1,5 @@
 #### This program assembles binary files for the Altair 8800.
+##### VERSION 1.1.3
 
 ### How to use
 

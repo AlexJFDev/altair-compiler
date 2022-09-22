@@ -23,7 +23,7 @@ class ComplexInstruction(Instruction):
             end_int: int = int(self.end_bits, 2)
             byte_code: bytes = (front_int + argument_int + end_int).to_bytes(1, "little")
         return_bytes: bytes = byte_code
-        for argument_number in range(1, self.number_of_arguments):
+        for argument_number in range(1, self.number_of_arguments + 1):
             argument: str = arguments[argument_number]
             return_bytes += bytes.fromhex(argument)
         return return_bytes
